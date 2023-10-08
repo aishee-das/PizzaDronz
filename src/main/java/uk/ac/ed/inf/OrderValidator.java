@@ -8,10 +8,12 @@ import uk.ac.ed.inf.ilp.data.Pizza;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 import uk.ac.ed.inf.ilp.interfaces.OrderValidation;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -104,8 +106,44 @@ public class OrderValidator implements OrderValidation {
 //        }
 
         //PIZZA_FROM_MULTIPLE_RESTAURANT
+        //Can you do this any other way like hashmap
+        Set<String> restaurantIDs = new HashSet<>();
+        for (Pizza pizza : orderToValidate.getPizzasInOrder()) {
+            boolean pizzaFound = false;
+
+            for (Restaurant restaurant : definedRestaurants) {
+                for (Pizza definedPizza : restaurant.menu()) {
+                    if (pizza.name().equals(definedPizza.name())) {
+                        String restaurantID = generateRestaurantID(restaurant);
+                        restaurantIDs.add(restaurantID);
+                        pizzaFound = true;
+                        break;
+                    }
+                }
+                if (pizzaFound) {
+                    break;
+                }
+            }
+            if (restaurantIDs.size() > 1) {
+                orderToValidate.setOrderValidationCode(OrderValidationCode.PIZZA_FROM_MULTIPLE_RESTAURANTS);
+                return orderToValidate;
+
+            }
+        }
 
         //RESTAURANT_CLOSED
+        //Checking whether the restaurant is closed on the order date
+        LocalDate orderDay = orderToValidate.getOrderDate();
+        for (Restaurant restaurant :definedRestaurants) {
+            DayOfWeek[] openingDays = restaurant.openingDays();
+            boolean isOpenOnOrderDay = Arrays.asList(openingDays).contains(orderDay.getDayOfWeek());
+
+            if (!isOpenOnOrderDay) {
+                orderToValidate.setOrderValidationCode(OrderValidationCode.RESTAURANT_CLOSED);
+                return orderToValidate;
+            }
+        }
+
 
         //INVALID STATUS CODE
 
@@ -142,6 +180,11 @@ public class OrderValidator implements OrderValidation {
             totalPizzaCost += pizza.priceInPence();
         }
         return totalPizzaCost;
+    }
+
+    //
+    private String generateRestaurantID(Restaurant restaurant) {
+        return restaurant.name() + restaurant.location().toString();
     }
 
     //Helper methods to validate pizza_not_defined
