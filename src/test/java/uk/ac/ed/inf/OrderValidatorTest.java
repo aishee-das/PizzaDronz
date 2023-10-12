@@ -25,6 +25,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -46,6 +48,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -67,6 +71,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -88,6 +94,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -103,12 +111,9 @@ public class OrderValidatorTest extends TestCase {
         CreditCardInformation creditCardInfo = new CreditCardInformation("1234567890123456", "12/23", "123");
         Order order = new Order("123", LocalDate.now(), OrderStatus.UNDEFINED, OrderValidationCode.UNDEFINED, 7600, pizzas, creditCardInfo);
         LngLat restaurantLocation = new LngLat(-3.19, 55.94);
-        LngLat restaurantLocation2 = new LngLat(-3.44455, 55.9422);
         Pizza[] restaurantMenu = {
                 new Pizza("All Shrooms", 1400),
-                new Pizza("Margarita", 900)
-        };
-        Pizza[] restaurantMenu2 = {
+                new Pizza("Margarita", 900),
                 new Pizza("Hawaiian", 1500),
                 new Pizza("Super Cheese", 3000),
                 new Pizza("Spicy Chicken Tikka", 1700)
@@ -116,11 +121,13 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
         };
-        Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
+        Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
@@ -134,16 +141,21 @@ public class OrderValidatorTest extends TestCase {
         LngLat restaurantLocation2 = new LngLat(-3.44455, 55.9422);
         Pizza[] restaurantMenu = {
                 new Pizza("All Shrooms", 1400),
-                new Pizza("Margarita", 900)
-        };
-        Pizza[] restaurantMenu2 = {
+                new Pizza("Margarita", 900),
                 new Pizza("Hawaiian", 1500),
                 new Pizza("Super Cheese", 3000),
                 new Pizza("Spicy Chicken Tikka", 1700)
         };
+        Pizza[] restaurantMenu2 = {
+                new Pizza("Chicken Supreme", 1500),
+                new Pizza("Triple Cheese", 3000),
+                new Pizza("Spicy Meat Feast", 1700)
+        };
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -165,6 +177,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -186,6 +200,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -207,6 +223,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -228,6 +246,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -245,10 +265,13 @@ public class OrderValidatorTest extends TestCase {
         LngLat restaurantLocation = new LngLat(-3.19, 55.94);
         LngLat restaurantLocation2 = new LngLat(-3.44455, 55.9422);
         Pizza[] restaurantMenu = {
-                new Pizza("All Shrooms", 1400),
-                new Pizza("Margarita", 900)
+                new Pizza("Chorizo", 1400),
+                new Pizza("Pepporoni", 900),
+
         };
         Pizza[] restaurantMenu2 = {
+                new Pizza("All Shrooms", 1400),
+                new Pizza("Margarita", 900),
                 new Pizza("hawaiian", 1500),
                 new Pizza("Super Cheese", 3000),
                 new Pizza("Spicy Chicken Tikka", 1700)
@@ -256,6 +279,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -273,10 +298,12 @@ public class OrderValidatorTest extends TestCase {
         LngLat restaurantLocation = new LngLat(-3.19, 55.94);
         LngLat restaurantLocation2 = new LngLat(-3.44455, 55.9422);
         Pizza[] restaurantMenu = {
-                new Pizza("All Shrooms", 1400),
-                new Pizza("Margarita", 900)
+                new Pizza("Mexican Chicken", 1400),
+                new Pizza("Chicken Feast", 900)
         };
         Pizza[] restaurantMenu2 = {
+                new Pizza("All Shrooms", 1400),
+                new Pizza("Margarita", 900),
                 new Pizza("Hawaiian", 1500),
                 new Pizza("Super Cheese", 3000),
                 new Pizza("Spicy Chicken Tikka", 1700)
@@ -284,6 +311,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -332,6 +361,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -359,6 +390,8 @@ public class OrderValidatorTest extends TestCase {
         DayOfWeek[] openingDays = {
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY,
                 DayOfWeek.SATURDAY,
                 DayOfWeek.SUNDAY
@@ -366,6 +399,7 @@ public class OrderValidatorTest extends TestCase {
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
     }
 
 }
