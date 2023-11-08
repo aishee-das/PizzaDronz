@@ -7,12 +7,10 @@ import uk.ac.ed.inf.ilp.data.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 public class OrderValidatorTest extends TestCase {
-
-    //CHANGE ALL OF ORDER DAY AS LOCALDAY.OF(YEAR, MONTH, DAYOFMONTH) otherwise all tests will fail!
-    //change tests to be all valid i.e pizza from same restaurant or it will fail
     public void testValidCreditCard() {
         OrderValidator orderValidator = new OrderValidator();
         CreditCardInformation creditCardInfo = new CreditCardInformation("1234444444444442", "12/23", "123");
@@ -33,6 +31,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
@@ -56,6 +55,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.CARD_NUMBER_INVALID, order.getOrderValidationCode());
     }
 
@@ -79,6 +79,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
@@ -102,6 +103,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.CVV_INVALID, order.getOrderValidationCode());
     }
 
@@ -129,6 +131,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
@@ -162,6 +165,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.MAX_PIZZA_COUNT_EXCEEDED, order.getOrderValidationCode());
     }
 
@@ -185,6 +189,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
@@ -208,6 +213,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order,definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.EXPIRY_DATE_INVALID, order.getOrderValidationCode());
     }
 
@@ -231,6 +237,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.TOTAL_INCORRECT, order.getOrderValidationCode());
     }
     public void testTotalCorrect() {
@@ -254,6 +261,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
@@ -287,6 +295,7 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.PIZZA_NOT_DEFINED, order.getOrderValidationCode());
     }
 
@@ -319,13 +328,14 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
         assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
     public void testRestaurantClosedOnOrderDay() {
         OrderValidator orderValidator = new OrderValidator();
         Pizza[] pizzas = new Pizza[] { new Pizza("All Shrooms", 1900), new Pizza("Margarita", 900)};
         CreditCardInformation creditCardInfo = new CreditCardInformation("1234567890123456", "11/23", "123");
-        Order order = new Order("19514FE0", LocalDate.of(2023, 9, 12), OrderStatus.UNDEFINED, OrderValidationCode.UNDEFINED, 2900, pizzas, creditCardInfo);
+        Order order = new Order("19514FE0", LocalDate.now(), OrderStatus.UNDEFINED, OrderValidationCode.UNDEFINED, 2900, pizzas, creditCardInfo);
         LngLat restaurantLocation = new LngLat(-3.19, 55.94);
         Pizza[] restaurantMenu = {
                 new Pizza("All Shrooms", 1900),
@@ -340,7 +350,8 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
         orderValidator.validateOrder(order, definedRestaurants);
-        assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
+        assertEquals(OrderValidationCode.RESTAURANT_CLOSED, order.getOrderValidationCode());
     }
     public void testPizzaFromMultipleRestaurants() {
         OrderValidator orderValidator = new OrderValidator();
@@ -369,12 +380,13 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.INVALID, order.getOrderStatus());
         assertEquals(OrderValidationCode.PIZZA_FROM_MULTIPLE_RESTAURANTS, order.getOrderValidationCode());
     }
     public void testPizzaFromSameRestaurant() {
         OrderValidator orderValidator = new OrderValidator();
         Pizza[] pizzas = new Pizza[] { new Pizza("All Shrooms", 1000), new Pizza("Margarita", 2000)};
-        CreditCardInformation creditCardInfo = new CreditCardInformation("1234567890123456", "11/23", "123");
+        CreditCardInformation creditCardInfo = new CreditCardInformation("1234567890123456", "12/23", "123");
         Order order = new Order("123", LocalDate.now(), OrderStatus.UNDEFINED, OrderValidationCode.UNDEFINED, 3100, pizzas, creditCardInfo);
         LngLat restaurantLocation = new LngLat(-3.19, 55.94);
         LngLat restaurantLocation2 = new LngLat(-3.44455, 55.9422);
@@ -398,8 +410,32 @@ public class OrderValidatorTest extends TestCase {
         };
         Restaurant[] definedRestaurants = new Restaurant[] { new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu), new Restaurant("Pizza Hut", restaurantLocation2, openingDays, restaurantMenu2)};
         orderValidator.validateOrder(order, definedRestaurants);
-        assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
         assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
+        assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
     }
 
-}
+
+    public void testRestaurantClosedOnOrderDay1() {
+        OrderValidator orderValidator = new OrderValidator();
+        Pizza[] pizzas = new Pizza[]{new Pizza("Margarita", 1000), new Pizza("Calzone", 1400)};
+        CreditCardInformation creditCardInfo = new CreditCardInformation("1234567890123456", "11/23", "123");
+        Order order = new Order("3069E801", LocalDate.now(), OrderStatus.UNDEFINED, OrderValidationCode.UNDEFINED, 2500, pizzas, creditCardInfo);
+        LngLat restaurantLocation = new LngLat(-3.1912869215011597, 55.945535152517735);
+        Pizza[] restaurantMenu = {
+                new Pizza("Margarita", 1000),
+                new Pizza("Calzone", 1400)
+        };
+        DayOfWeek[] openingDays = {
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.FRIDAY,
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY
+        };
+        Restaurant[] definedRestaurants = new Restaurant[]{new Restaurant("Civerinos Slice", restaurantLocation, openingDays, restaurantMenu)};
+        orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderStatus.VALID_BUT_NOT_DELIVERED, order.getOrderStatus());
+        assertEquals(OrderValidationCode.NO_ERROR, order.getOrderValidationCode());
+
+
+    }}

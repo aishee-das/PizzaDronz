@@ -8,15 +8,14 @@ public class LngLatHandlerTest extends TestCase {
     private final LngLat appletonTower = new LngLat(-3.186874, 55.944494);
     private final LngLatHandler handler = new LngLatHandler();
     private final LngLat businessSchool = new LngLat(-3.1873, 55.9430);
-    //chagne greyfriard to something else?
-    private final LngLat greyfriarsKirkyard = new LngLat(-3.1928, 55.9469);
+    private final LngLat greyYard = new LngLat(-3.1928, 55.9469);
 
     public void testDistanceTo() {
-        LngLat start = new LngLat(3.0, 5.0);
-        LngLat end = new LngLat(7.0, 9.0);
+        LngLat start = new LngLat(9.0, 6.0);
+        LngLat end = new LngLat(5.0, 3.0);
         LngLatHandler handler = new LngLatHandler();
         double distance = handler.distanceTo(start, end);
-        assertEquals(5.656854249, distance);
+        assertEquals(5.0, distance);
     }
 
     public void testCloseToTrue() {
@@ -46,12 +45,22 @@ public class LngLatHandlerTest extends TestCase {
 
         // Test points inside and outside the region
         assertTrue(handler.isInRegion(appletonTower, region)); // Inside
-        assertFalse(handler.isInRegion(greyfriarsKirkyard, region)); // Outside
+        assertFalse(handler.isInRegion(greyYard, region)); // Outside
     }
 
     public void testIsInRegionBoundary(){
         var lngLatHandler = new LngLatHandler();
         LngLat lngLat = new LngLat(-3.192473, 55.943);
+        LngLat[] vertices = new LngLat[]{new LngLat(-3.192473, 55.946233),
+                new LngLat(-3.192473, 55.942617), new LngLat(-3.184319, 55.942617),
+                new LngLat(-3.184319, 55.946233)};
+        NamedRegion namedRegion = new NamedRegion("Central", vertices);
+        assertTrue(lngLatHandler.isInRegion(lngLat, namedRegion));
+    }
+
+    public void testIsInRegionOnBorder(){
+        var lngLatHandler = new LngLatHandler();
+        LngLat lngLat = new LngLat(-3.192473, 55.942617);
         LngLat[] vertices = new LngLat[]{new LngLat(-3.192473, 55.946233),
                 new LngLat(-3.192473, 55.942617), new LngLat(-3.184319, 55.942617),
                 new LngLat(-3.184319, 55.946233)};

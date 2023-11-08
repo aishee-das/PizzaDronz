@@ -42,25 +42,41 @@ public class LngLatHandler implements LngLatHandling {
 
     @Override
     public boolean isInRegion(LngLat position, NamedRegion region) {
-        int numVertices = region.vertices().length;
         LngLat[] vertices = region.vertices();
 
+        int n = vertices.length;
         boolean isInside = false;
-        for (int i = 0, j = numVertices - 1; i < numVertices; j = i++) {
-            double xi = vertices[i].lng();
-            double yi = vertices[i].lat();
-            double xj = vertices[j].lng();
-            double yj = vertices[j].lat();
 
-            boolean intersect = ((yi > position.lat()) != (yj > position.lat())) && (position.lng() < (xj - xi) * (position.lat() - yi) / (yj - yi) + xi);
+        for (int i = 0, j = n - 1; i < n; j = i++) {
+            LngLat vertexI = vertices[i];
+            LngLat vertexJ = vertices[j];
 
-            if (intersect) {
+            double xi = vertexI.lng();
+            double yi = vertexI.lat();
+            double xj = vertexJ.lng();
+            double yj = vertexJ.lat();
+
+            // Check if the position is on the border
+            if (isOnBoundary(position, xi, yi, xj, yj)) {
+                return true;
+            }
+
+            // Check if the position is within the polygon using ray casting algorithm
+            if (((yi > position.lat()) != (yj > position.lat())) &&
+                    (position.lng() < (xj - xi) * (position.lat() - yi) / (yj - yi) + xi)) {
                 isInside = !isInside;
             }
         }
+
         return isInside;
     }
 
+    /**
+     * find the next position if an @angle is applied to a @startPosition
+     * @param startPosition is where the start is
+     * @param angle is the angle to use in degrees
+     * @return the new position after the angle is used
+     */
     @Override
     public LngLat nextPosition(LngLat startPosition, double angle) {
         //If drone is hovering, return the same position
@@ -69,11 +85,17 @@ public class LngLatHandler implements LngLatHandling {
         } else {
             //If drone is flying, calculate the new position
             double angleInRadians = Math.toRadians(angle);
-
-            double newLng = startPosition.lng() + Math.cos (angleInRadians) * 0.00015;
-            double newLat = startPosition.lat() + Math.sin (angleInRadians) * 0.00015;
+            double newLng = startPosition.lng() + Math.cos (angleInRadians) * SystemConstants.DRONE_MOVE_DISTANCE;
+            double newLat = startPosition.lat() + Math.sin (angleInRadians) * SystemConstants.DRONE_MOVE_DISTANCE;
 
             return new LngLat(newLng, newLat);
         }
+    }
+
+    // Helper method to check if a point is on the boundary
+    private boolean isOnBoundary(LngLat position, double xi, double yi, double xj, double yj) {
+        return (position.lng() == xi && position.lat() == yi) ||
+                (position.lng() == xj && position.lat() == yj) ||
+                (position.lat() - yi) / (yj - yi) == (position.lng() - xi) / (xj - xi);
     }
 }
