@@ -15,23 +15,47 @@ public class App {
      */
     public static void main(String[] args) {
         String todayDate = "2023-11-07";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(todayDate, formatter); // Parse the string into a LocalDate
-        String formattedDate = date.format(formatter);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        LocalDate date = LocalDate.parse(todayDate, formatter); // Parse the string into a LocalDate
+//        String formattedDate = date.format(formatter);
 
-        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(formattedDate);
+        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
         Queue<Order> orders = ordersToDeliver.getOrdersToDeliver();
 
         if (!orders.isEmpty()) {
-            System.out.println("Orders for " + formattedDate + ":");
+            System.out.println("Orders for " + todayDate + ":");
             for (Order order : orders) {
-                System.out.println("Status Code: " + order.getOrderStatus());
+                System.out.println("Status Code: " + order.getOrderNo());
                 // Print other order details as needed
             }
         } else {
-            System.out.println("No orders found for " + formattedDate);
+            System.out.println("No orders found for " + todayDate);
         }
-        System.out.println("No of orders for " + formattedDate + ": " + orders.size());
+        System.out.println("No of orders for " + todayDate + ": " + orders.size());
+
+        //OrdersToDeliver ordersToDeliver = new OrdersToDeliver("2023-09-01");
+        // Create an instance of RetrieveRestData
+        RetrieveRestData restDataRetriever = new RetrieveRestData();
+
+        // Retrieve restaurant data from the REST API
+        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
+
+        // Get the first order from the queue
+        Order firstOrder = ordersToDeliver.getOrdersToDeliver().poll();
+
+//        // Assuming you have retrieved the restaurants data from the REST API
+//        String restaurantsEndpoint = "/restaurants";
+//        RetrieveRestData restDataRetriever = new RetrieveRestData();
+//        Restaurant[] allRestaurants = restDataRetriever.retrieveData(restaurantsEndpoint, Restaurant[].class);
+
+        // Find the corresponding restaurant for the first order
+        Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(firstOrder, allRestaurants);
+
+        if (correspondingRestaurant != null) {
+            System.out.println("Corresponding restaurant found for the first order: " + correspondingRestaurant.name());
+        } else {
+            System.out.println("No corresponding restaurant found for the first order.");
+        }
 }}
 //        String todayDate = "2023-10-31"; // Format: yyyy-MM-dd
 //

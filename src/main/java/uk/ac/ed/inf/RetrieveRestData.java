@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import uk.ac.ed.inf.ilp.data.Order;
+import uk.ac.ed.inf.ilp.data.Restaurant;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,6 +32,11 @@ public class RetrieveRestData {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    public Restaurant[] retrieveRestaurantData() {
+        String restaurantsEndpoint = "/restaurants";
+        return retrieveData(restaurantsEndpoint, Restaurant[].class);
     }
 }
 
