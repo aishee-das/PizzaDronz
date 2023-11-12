@@ -39,7 +39,8 @@ public class LngLatHandlerTest extends TestCase {
                 new LngLat(-3.192473, 55.946233),
                 new LngLat(-3.192473, 55.942617),
                 new LngLat(-3.184319, 55.942617),
-                new LngLat(-3.184319, 55.946233)
+                new LngLat(-3.184319, 55.946233),
+                new LngLat(-3.19,55.946)
         };
         NamedRegion region = new NamedRegion("Sample Region", vertices);
 

@@ -5,6 +5,10 @@ import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.interfaces.LngLatHandling;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class LngLatHandler implements LngLatHandling {
     /**
      * get the distance between two positions
@@ -71,6 +75,10 @@ public class LngLatHandler implements LngLatHandling {
         return isInside;
     }
 
+    private double getAngleFromDirection(Direction direction) {
+        return direction.angle;
+    }
+
     /**
      * find the next position if an @angle is applied to a @startPosition
      * @param startPosition is where the start is
@@ -90,6 +98,12 @@ public class LngLatHandler implements LngLatHandling {
 
             return new LngLat(newLng, newLat);
         }
+    }
+
+    // Additional method to use Direction enum
+    public LngLat nextDirectionPosition(LngLat startPosition, Direction direction) {
+        double angle = getAngleFromDirection(direction);
+        return nextPosition(startPosition, angle);
     }
 
     // Helper method to check if a point is on the boundary

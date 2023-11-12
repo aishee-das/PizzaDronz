@@ -18,88 +18,46 @@ import java.util.stream.Collectors;
 public class OrdersToDeliver {
 
     private ArrayList<Order> ordersForDate;
-    private Queue<Order> ordersToDeliver;
-
-    //private PriorityQueue<Order> validOrdersToDeliver;
-
+    private Queue<Order> validOrdersToDeliver;
 
     public OrdersToDeliver(String dateString) {
         this.ordersForDate = new ArrayList<>();
-        this.ordersToDeliver = new LinkedList<>();
+        this.validOrdersToDeliver = new LinkedList<>();
 
-        try {
-            String format = "yyyy-MM-dd";
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
+        // Create an instance of RetrieveRestData
+        RetrieveRestData restDataRetriever = new RetrieveRestData();
 
-            Date date = sdf.parse(dateString);
+        // Retrieve restaurant data from the REST API
+        Restaurant[] definedRestaurants = restDataRetriever.retrieveRestaurantData();
+        Order[] orders = restDataRetriever.retrieveOrderDataByDate(dateString);
 
-            if (date != null) {
-                String formattedDate = sdf.format(date);
 
-                String ordersEndpoint = "/orders/" + formattedDate;
-                String restaurantsEndpoint = "/restaurants";
-
-                RetrieveRestData restDataRetriever = new RetrieveRestData();
-                Order[] orders = restDataRetriever.retrieveData(ordersEndpoint, Order[].class);
-                Restaurant[] definedRestaurants = restDataRetriever.retrieveData(restaurantsEndpoint, Restaurant[].class);
-
-                if (orders != null) {
-                    for (Order order : orders) {
-                        ordersForDate.add(order);
-                    }
-                }
-
-                OrderValidator orderValidator = new OrderValidator();
-                for (Order order : ordersForDate) {
-                    Order validatedOrder = orderValidator.validateOrder(order, definedRestaurants);
-
-                    if (validatedOrder.getOrderValidationCode() == OrderValidationCode.NO_ERROR &&
-                            validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
-                        ordersToDeliver.add(validatedOrder);
-                    }
-                }
+        if (orders != null) {
+            for (Order order : orders) {
+                ordersForDate.add(order);
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        }
+
+        OrderValidator orderValidator = new OrderValidator();
+        for (Order order : ordersForDate) {
+            Order validatedOrder = orderValidator.validateOrder(order, definedRestaurants);
+
+            if (validatedOrder.getOrderValidationCode() == OrderValidationCode.NO_ERROR &&
+                    validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
+                validOrdersToDeliver.add(validatedOrder);
+            }
         }
     }
-
-
 
     public ArrayList<Order> getOrdersForDate() {
         return ordersForDate;
     }
 
-    public Queue<Order> getOrdersToDeliver() {
-        return ordersToDeliver;
+    public Queue<Order> getValidOrdersToDeliver() {
+        return validOrdersToDeliver;
     }
 
-    /**
-     * Find corresponding restaurant for order.
-     * @param order The order for which to find the corresponding restaurant.
-     * @param restaurants List of all restaurants.
-     * @return The corresponding restaurant for the order.
-     */
-    public static Restaurant findCorrespondingRestaurant(Order order, Restaurant[] restaurants) {
-        Pizza[] orderPizzas = order.getPizzasInOrder();
-
-        for (Restaurant restaurant : restaurants) {
-            ArrayList<String> restaurantPizzaNames = Arrays.stream(restaurant.menu())
-                    .map(Pizza::name)
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            boolean allPizzasFound = Arrays.stream(orderPizzas)
-                    .allMatch(pizza -> restaurantPizzaNames.contains(pizza.name()));
-
-            if (allPizzasFound) {
-                return restaurant;
-            }
-        }
-
-        // If no corresponding restaurant is found, return null or handle it as needed
-        return null;
-    }
+}
 
 //    public void searchCorrespondingRestaurant(Restaurant[] definedRestaurants) {
 //        for (Restaurant restaurant : definedRestaurants) {
@@ -112,9 +70,6 @@ public class OrdersToDeliver {
 //    public PriorityQueue<Order> getValidOrdersToDeliver() {
 //        return validOrdersToDeliver;
 //    }
-
-
-}
 
 //    public OrdersToDeliver(String dateString) {
 //        this.ordersForDate = new ArrayList<>();
