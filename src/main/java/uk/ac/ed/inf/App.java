@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static uk.ac.ed.inf.FlightPath.findShortestPath;
+import static uk.ac.ed.inf.OutputFileWriter.outputGeoJson;
 
 public class App {
     /**
@@ -16,36 +17,125 @@ public class App {
     public static void main(String[] args) {
 
 
+
+
+        LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
+        LngLat startLocation = APPLETON_TOWER;
         AStarSearch aStarSearch = new AStarSearch();
+        Node3 goBack = new Node3(APPLETON_TOWER);
+        List<Node3> movesMade = new ArrayList<>();
 
-        // Define start and end locations
-        LngLat startLocation = new LngLat(-3.18, 55.94);
-        LngLat endLocation = new LngLat(-3.19, 55.94);
+        String todayDate = "2023-11-14";
+        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
+        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
+//
+        System.out.println("No of orders for " + todayDate + ": " + orders.size()); //should be 37
 
-        // Create a Node for the destination
-        Node3 destinationNode = new Node3(endLocation);
+        // Create an instance of RetrieveRestData
+        RetrieveRestData restDataRetriever = new RetrieveRestData();
 
-        // Find the end node using A* algorithm
-        Node3 endNode = aStarSearch.pathFindingAlgorithm(startLocation, destinationNode);
+        // Retrieve restaurant data from the REST API
+        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
+
+        // Get the first order from the queue
+        Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
 
 
-        // Get the path back
-        List<Node3> path = aStarSearch.getPathBack();
+        // Find the corresponding restaurant for the first order
+        Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(firstOrder, allRestaurants);
+        LngLat restaurantLocation = correspondingRestaurant.location();
+        System.out.println(restaurantLocation);
+        Node3 restaurantDelivery = new Node3(restaurantLocation);
+        Node3 pathToRestaurantEndNode = aStarSearch.pathFindingAlgorithm(startLocation, restaurantDelivery);
+        List<Node3> pathToRestaurant = aStarSearch.getPathBack();
+        List<Node3> pathToRestaurantFixed = pathToRestaurant.subList(1, pathToRestaurant.size());
+        List<Node3> pathFromRestaurant = new ArrayList<>(pathToRestaurant);
+        Collections.reverse(pathFromRestaurant);
+//        Node3 pathFromRestaurantEndNode = aStarSearch.pathFindingAlgorithm(pathToRestaurantEndNode.location, goBack);
+//        List<Node3> pathFromRestaurant = aStarSearch.getPathBack();
+        List<Node3> pathFromRestaurantFixed = pathFromRestaurant.subList(1, pathFromRestaurant.size());
+//        startLocation = pathFromRestaurantEndNode.location;
 
-        // Print the path
-        if (path != null) {
-            System.out.println("Path from start to end:");
-            for (int i = 0; i < path.size() - 1; i++) {
-                Node3 currentNode = path.get(i);
-                Node3 nextNode = path.get(i + 1);
-                System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
-            }
-        } else {
-            System.out.println("No path found.");
-        }
+        movesMade.addAll(pathToRestaurant);
+        //movesMade.addAll(pathFromRestaurant);
+//
+//
+//
+//
+//
+        // Print the move from current node to next node
+//        System.out.println("Moves from start to end:");
+//        for (int i = 0; i < movesMade.size() - 1; i++) {
+//            Node3 currentNode = movesMade.get(i);
+//            Node3 nextNode = movesMade.get(i + 1);
+//            System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+//        }
+
+       // List<Node> allMoves = // populate your list of Node objects
+       // String date = // provide the date as needed
+
+        outputGeoJson(movesMade, todayDate);
+
+
+
+//        // Define start and end locations
+//        LngLat endLocation = new LngLat(-3.1940174102783203, 55.94390696616939);
+//
+//        // Create a Node for the destination
+//        Node3 destinationNode = new Node3(endLocation);
+//
+//        // Find the end node using A* algorithm
+//        Node3 endNode = aStarSearch.pathFindingAlgorithm(startLocation, destinationNode);
+//
+//
+//        // Get the path back
+//        List<Node3> path = aStarSearch.getPathBack();
+//
+//        // Print the path
+//        if (path != null) {
+//            System.out.println("Path from start to end:");
+//            for (int i = 0; i < path.size() - 1; i++) {
+//                Node3 currentNode = path.get(i);
+//                Node3 nextNode = path.get(i + 1);
+//                System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+//            }
+//        } else {
+//            System.out.println("No path found.");
+//        }
 
     }
     }
+//
+//    AStarSearch aStarSearch = new AStarSearch();
+//
+//    // Define start and end locations
+//    LngLat startLocation = new LngLat(-3.18, 55.94);
+//    LngLat endLocation = new LngLat(-3.19, 55.94);
+//
+//    // Create a Node for the destination
+//    Node3 destinationNode = new Node3(endLocation);
+//
+//    // Find the end node using A* algorithm
+//    Node3 endNode = aStarSearch.pathFindingAlgorithm(startLocation, destinationNode);
+//
+//
+//    // Get the path back
+//    List<Node3> path = aStarSearch.getPathBack();
+//
+//// Print the path
+//        if (path != null) {
+//                System.out.println("Path from start to end:");
+//                for (int i = 0; i < path.size() - 1; i++) {
+//        Node3 currentNode = path.get(i);
+//        Node3 nextNode = path.get(i + 1);
+//        System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+//        }
+//        } else {
+//        System.out.println("No path found.");
+//        }
+//
+//        }
+//        }
 
 //        // Define start and end points
 //        LngLat start = new LngLat(-3.186874, 55.944494);

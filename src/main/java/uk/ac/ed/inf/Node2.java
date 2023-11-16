@@ -15,7 +15,7 @@ public class Node2 {
     LngLat lat;
     LngLat lng; //node position
 
-    int f, g, h; // A* algorithm value parameters
+    double f, g, h; // A* algorithm value parameters
 
     Node2 parent;  //parent record: come from
 
@@ -35,36 +35,17 @@ public class Node2 {
     }
 
     @Override
-    public boolean equals(Object obj){
-        if(this == obj){
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if(obj == null || getClass() != obj.getClass()){
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
         Node2 other = (Node2) obj;
-        return other.lng == lng && other.lat == lat;
+        return Objects.equals(lng, other.lng) && Objects.equals(lat, other.lat);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

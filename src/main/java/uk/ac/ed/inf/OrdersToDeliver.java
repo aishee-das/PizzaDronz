@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
+import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Pizza;
 import uk.ac.ed.inf.ilp.data.Restaurant;
@@ -19,6 +20,35 @@ public class OrdersToDeliver {
 
     private ArrayList<Order> ordersForDate;
     private Queue<Order> validOrdersToDeliver;
+
+    private List<Node3> movesMade = new ArrayList<>();
+
+
+    /**
+     * Find corresponding restaurant for order.
+     * @param order The order for which to find the corresponding restaurant.
+     * @param restaurants List of all restaurants.
+     * @return The corresponding restaurant for the order.
+     */
+    public static Restaurant findCorrespondingRestaurant(Order order, Restaurant[] restaurants) {
+        Pizza[] orderPizzas = order.getPizzasInOrder();
+
+        for (Restaurant restaurant : restaurants) {
+            ArrayList<String> restaurantPizzaNames = Arrays.stream(restaurant.menu())
+                    .map(Pizza::name)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            boolean allPizzasFound = Arrays.stream(orderPizzas)
+                    .allMatch(pizza -> restaurantPizzaNames.contains(pizza.name()));
+
+            if (allPizzasFound) {
+                return restaurant;
+            }
+        }
+
+        // If no corresponding restaurant is found, return null or handle it as needed
+        return null;
+    }
 
     public OrdersToDeliver(String dateString) {
         this.ordersForDate = new ArrayList<>();
@@ -58,6 +88,17 @@ public class OrdersToDeliver {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 //    public void searchCorrespondingRestaurant(Restaurant[] definedRestaurants) {
 //        for (Restaurant restaurant : definedRestaurants) {

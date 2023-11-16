@@ -4,6 +4,7 @@ import org.springframework.boot.Banner;
 import uk.ac.ed.inf.MyRestaurant;
 import uk.ac.ed.inf.Node;
 import uk.ac.ed.inf.RetrieveRestData;
+import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -15,13 +16,9 @@ public class FlightPath {
 
     private static final double[] DIRS = {(0.0), (22.5), (45.0), (67.5), (90.0), (112.5), (135.0), (157.5),
             (180.0), (202.5), (225.0), (247.5), (270.0), (292.5), (315.0), (337.5)};
-    private Queue<Order> validOrdersToDeliver;
-    private NamedRegion centralArea;
-    private NamedRegion[] noFlyZones;
-    RetrieveRestData restDataRetriever = new RetrieveRestData();
 
+    //public static HashSet<Node2> openSet;
     public static PriorityQueue<Node2> openSet;
-
     public static HashSet<Node2> closedSet;
 
     public static List<Node2> path;
@@ -29,13 +26,12 @@ public class FlightPath {
 
 
     public FlightPath() {
-        openSet = new PriorityQueue<>(Comparator.comparingInt(c -> c.f));
+        //openSet = new HashSet<>();
+        openSet = new PriorityQueue<>(Comparator.comparingDouble(c -> c.f));
         closedSet = new HashSet<>();
         path = new ArrayList<>();
     }
 
-
-    //A* seach algorithm
 
     public static boolean findShortestPath(Node2 start, Node2 goal) {
         //add start to queue first
@@ -44,14 +40,19 @@ public class FlightPath {
         //once there is element in the queue, then keep running
         while (!openSet.isEmpty()) {
 
-            //get the cell with smallest cost
+            // get the cell with smallest cost
             Node2 current = openSet.poll();
+
+//            //get the cell with smallest cost
+//            Node2 current = openSet.iterator().next();
+//            openSet.remove(current);
 
             //mark the cell to be visited
             closedSet.add(current);
 
             //find the goal: early exit
-            if (current.lng == goal.lng && current.lat == goal.lat) {
+//            if (current.equals(goal)) {
+            if (current.lng == goal.lng && current.lng == goal.lng) {
                 //Reconstruct the path: trace by find the parent cell
 
                 path = new ArrayList<>();
@@ -69,11 +70,11 @@ public class FlightPath {
                 LngLat newLng = lngLatHandler.nextPosition(current.lng, dir);
                 LngLat newLat = lngLatHandler.nextPosition(current.lat, dir);
 
-
+                Node2 newNeighbour = new Node2(newLng, newLat);
                 if (!closedSet.contains(new Node2(newLng, newLat))) {
 
                     //new movement is laways 1 cost even if its diagonal
-                    int tentativeG = current.g + 1;
+                    double tentativeG = current.g + SystemConstants.DRONE_MOVE_DISTANCE;
 
                     //find the cell if it is in the frontier but not visited to see if cost updating is needed
                     Node2 existing_neighbour = findNeighbour(newLng, newLat);
@@ -93,8 +94,8 @@ public class FlightPath {
                         Node2 neighbour = new Node2(newLng, newLat);
                         neighbour.parent = current;
                         neighbour.g = tentativeG;
-                        neighbour.h = heuristic(neighbour, goal);
-                        neighbour.f = neighbour.g + neighbour.h;
+                        neighbour.h = heuristic(newNeighbour, goal);
+                        neighbour.f = newNeighbour.g + newNeighbour.h;
 
                         openSet.add(neighbour);
                     }
@@ -109,23 +110,40 @@ public class FlightPath {
 
     }
 
-    public static Node2 findNeighbour(LngLat lng, LngLat lat) {
-        if (openSet.isEmpty()) {
-            return null;
-        }
+      public static Node2 findNeighbour(LngLat lng, LngLat lat) {
+          if (openSet.isEmpty()) {
+              return null;
+          }
 
-        Iterator<Node2> iterator = openSet.iterator();
+          Iterator<Node2> iterator = openSet.iterator();
 
-        Node2 find = null;
-        while (iterator.hasNext()) {
-            Node2 next = iterator.next();
-            if (next.lng == lng && next.lat == lat){
-                find = next;
-                break;
-            }
-        }
-        return find;
-    }
+          Node2 find = null;
+          while (iterator.hasNext()) {
+              Node2 next = iterator.next();
+              if (next.lng == lng && next.lat == lat) {
+                  find = next;
+                  break;
+              }
+          }
+          return find;
+      }
+
+//        if (openSet.isEmpty()) {
+//            return null;
+//        }
+//
+//        Iterator<Node2> iterator = openSet.iterator();
+//
+//        Node2 find = null;
+//        while (iterator.hasNext()) {
+//            Node2 next = iterator.next();
+//            if (next.lng == lng && next.lat == lat){
+//                find = next;
+//                break;
+//            }
+//        }
+//        return find;
+
 
     // Helper function to check if a cell is part of the path
     public static boolean isInPath(LngLat lng, LngLat lat) {
@@ -141,8 +159,10 @@ public class FlightPath {
         // A simple heuristic: Manhattan distance
         double lngDiff = a.lng.lng() - b.lng.lng();
         double latDiff = a.lat.lat() - b.lat.lat();
+        double distance = Math.sqrt(lngDiff * lngDiff + latDiff * latDiff);
 
-        return (int) (Math.abs(lngDiff) + Math.abs(latDiff));
+        // You may need to adjust the return type based on your needs.
+        return (int) distance;
     }
 }
 

@@ -1,6 +1,8 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
+import uk.ac.ed.inf.ilp.data.NamedRegion;
 
 import java.util.*;
 
@@ -51,8 +53,7 @@ public class AStarSearch {
         //The hover node has the parent of the end node
         hover.parent = endNode;
 //        //The angle taken in this hover node will be null
-//        hover.angle = Double.NaN;
-
+        hover.angle = Direction.HOVER.angle;
 
         //The hover node is then added to the path
         path.add(hover);
@@ -102,12 +103,14 @@ public class AStarSearch {
                 endNode = current;
                 return endNode;
             }
+            RetrieveRestData retrieveRestData = new RetrieveRestData();
+            NamedRegion[] noFlyZones = retrieveRestData.retrieveNoFlyZones();
             //check every child of current NodeTwo
-            current.setNextNodes();
+            current.setNextNodes(noFlyZones);
             for (Node3 nextNode : current.nextNodes) {
-                double cost = 0.00015;
+                double cost = SystemConstants.DRONE_MOVE_DISTANCE;
                 double temp_g_scores = current.g_scores + cost;
-                double temp_f_scores = temp_g_scores + nextNode.h_scores;
+                double temp_f_scores = temp_g_scores + nextNode.h_scores * 1.05;
                                 /*if child NodeTwo has been evaluated and
                                 the newer f_score is higher, skip*/
                 if ((explored.contains(nextNode)) &&
