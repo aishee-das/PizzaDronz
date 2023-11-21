@@ -4,7 +4,9 @@ import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  *This class is used to contain vital features that completely define a move that the drone makes.
@@ -64,6 +66,7 @@ public class Node3 {
         location = loc;
     }
 
+
     /**
      * A parameterized constructor for Node, this constructor is used when we make a node for a location
      * that is not the required destination nor is it close to the destination.
@@ -77,42 +80,59 @@ public class Node3 {
 
         // Calculating and storing the euclidean distance from the current location to the destination the
         // drone attempts to get to/ get close to.
-//        h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
-        if (destinationNode != null) {
-            h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
-        } else {
-            h_scores = 0; // Set distance to 0 for hover nodes
-        }
-    }
+        h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
 
-    public static Node3 createHoverNode(LngLat loc, Node3 destinationNode, int angle) {
-        Node3 hoverNode = new Node3(loc, destinationNode);
-        hoverNode.angle = angle;
-        return hoverNode;
+//            h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
+//        } else {
+//            h_scores = 0; // Set distance to 0 for hover nodes
 
     }
+
+//    public static Node3 createHoverNode(LngLat loc, Node3 destinationNode, int angle) {
+//        Node3 hoverNode = new Node3(loc, destinationNode);
+//        hoverNode.angle = angle;
+//        return hoverNode;
+//
+//    }
 
 
     /**
      * This method sets all the next nodes the  drone can travel to.
      */
-    public void setNextNodes(NamedRegion[] noFlyZones) {
-        // Iterating over every direction the drone can move
-        for (Direction direction : Direction.values()) {
-            // Stores the location the drone would be at if it were to move in this direction.
-            LngLat nextPos = lngLatHandler.nextPosition(location, direction.angle);
-            // Makes a new node for every one of the positions that the drone could get to.
-            Node3 newNode = new Node3(nextPos, destinationNode);
+//    public void setNextNodes(NamedRegion[] noFlyZones) {
+//        nextNodes.clear(); //maybe??
+//        // Iterating over every direction the drone can move
+//        for (Direction direction : Direction.values()) {
+//            // Stores the location the drone would be at if it were to move in this direction.
+//            LngLat nextPos = lngLatHandler.nextPosition(location, direction.angle);
+//            // Makes a new node for every one of the positions that the drone could get to.
+//            Node3 newNode = new Node3(nextPos, destinationNode);
+//
+//            // sets the parent of this next node to the current node
+//            newNode.parent = this;
+//
+//            // Check if the next node is in any of the no-fly zones
+//            if (newNode.pruneNextNodes(noFlyZones)) {
+//                // Add the new node to the list of next nodes only if it's not pruned
+//                nextNodes.add(newNode);
+//            }
+//
+//            newNode.angle = direction.angle;
+//            // Add the new node to the list of next nodes
+//            nextNodes.add(newNode);
+//        }
+//    }
 
-            // sets the parent of this next node to the current node
+    public void setNextNodes(NamedRegion[] noFlyZones) {
+
+        for (Direction direction : Direction.values()) {
+            LngLat nextPos = lngLatHandler.nextPosition(location, direction.angle);
+            Node3 newNode = new Node3(nextPos, destinationNode);
             newNode.parent = this;
 
-            // Check if the next node is in any of the no-fly zones
             if (newNode.pruneNextNodes(noFlyZones)) {
-                // Add the new node to the list of next nodes only if it's not pruned
                 nextNodes.add(newNode);
             }
-
             newNode.angle = direction.angle;
             // Add the new node to the list of next nodes
             nextNodes.add(newNode);
@@ -153,6 +173,21 @@ public class Node3 {
 
         return true; // Node should not be pruned
     }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Node3 other = (Node3) obj;
+        return Objects.equals(location, other.location);
+    }
+
 
 
 

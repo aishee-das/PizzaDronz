@@ -40,13 +40,13 @@ public class DroneMove {
 //        return fromLatitude;
 //    }
 //
-//    public double getNextNodeFromLng() {
-//        return toLongitude;
-//    }
-//
-//    public double getNextNodeFromLat() {
-//        return toLatitude;
-//    }
+    public double getNextNodeFromLng() {
+        return toLongitude;
+    }
+
+    public double getNextNodeFromLat() {
+        return toLatitude;
+    }
 //
 //    public double getAngle() {
 //        return angle;

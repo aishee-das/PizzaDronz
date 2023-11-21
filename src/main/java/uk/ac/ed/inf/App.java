@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static uk.ac.ed.inf.FlightPath.findShortestPath;
 //import static uk.ac.ed.inf.OutputFileWriter.outputGeoJson;
 
 public class App {
@@ -15,11 +14,29 @@ public class App {
      * Passing in a valid order and testing that jar file works
      */
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
 
-        String todayDate = "2023-11-19";
+        String todayDate = "2023-11-21";
 
         DeliveryManager deliveryManager = new DeliveryManager();
         deliveryManager.runDeliveryProcess(todayDate);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+
+        // Convert the elapsed time to seconds
+        double elapsedTimeInSeconds = elapsedTime / 1000.0;
+
+        System.out.println("Time taken: " + elapsedTimeInSeconds + " seconds");
+//        String todayDate = "2023-11-21";
+//        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
+//        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
+////
+//        System.out.println("No of orders for " + todayDate + ": " + orders.size()); //should be 37
+//
+//        while (!orders.isEmpty()) {
+//            Order currentOrder = orders.poll();
+//            System.out.println(currentOrder.getOrderNo());
+//        }
 
 
 

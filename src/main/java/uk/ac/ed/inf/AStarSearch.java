@@ -71,7 +71,10 @@ public class AStarSearch {
      * @return The node that is a location close to the destination that the drone attempted to get to.
      */
     public Node3 pathFindingAlgorithm(LngLat startLocation, Node3 goal) {
+
         Set<Node3> explored = new HashSet<>();
+        RetrieveRestData retrieveRestData = new RetrieveRestData();
+        NamedRegion[] noFlyZones = retrieveRestData.retrieveNoFlyZones();
 
         /*A new node is made for the start point of searching for the path, the destination being a
          node depicting the final location the drone should reach. */
@@ -89,8 +92,9 @@ public class AStarSearch {
 
         //cost from start
         source.g_scores = 0;
-        queue.add(source);
 
+        queue.add(source);
+        double droneMoveDistance = SystemConstants.DRONE_MOVE_DISTANCE;
         while (!queue.isEmpty()) {
             //the NodeTwo in having the lowest f_score value
             Node3 current = queue.poll();
@@ -103,14 +107,14 @@ public class AStarSearch {
                 endNode = current;
                 return endNode;
             }
-            RetrieveRestData retrieveRestData = new RetrieveRestData();
-            NamedRegion[] noFlyZones = retrieveRestData.retrieveNoFlyZones();
+
             //check every child of current NodeTwo
             current.setNextNodes(noFlyZones);
             for (Node3 nextNode : current.nextNodes) {
-                double cost = SystemConstants.DRONE_MOVE_DISTANCE;
+                double cost = droneMoveDistance;
                 double temp_g_scores = current.g_scores + cost;
-                double temp_f_scores = temp_g_scores + nextNode.h_scores * 1.05;
+//                double temp_f_scores = temp_g_scores + nextNode.h_scores * 1.05;
+                double temp_f_scores = temp_g_scores + nextNode.h_scores * 1.5;
                                 /*if child NodeTwo has been evaluated and
                                 the newer f_score is higher, skip*/
                 if ((explored.contains(nextNode)) &&

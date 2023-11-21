@@ -20,95 +20,96 @@ public class DeliveryManager {
     private Queue<Order> validOrders;
 
     private List<DroneMove> droneMoves = new ArrayList<>();
+//get all the ordres
+    public void runDeliveryProcess(String date) {
+        LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
+        LngLat startLocation = APPLETON_TOWER;
+        AStarSearch aStarSearch = new AStarSearch();
+        ArrayList<DroneMove> droneMoves = new ArrayList<>();
+        this.droneMoves = droneMoves;
 
-        public void runDeliveryProcess(String date) {
-            LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
-            LngLat startLocation = APPLETON_TOWER;
-            AStarSearch aStarSearch = new AStarSearch();
-            ArrayList<DroneMove> droneMoves = new ArrayList<>();
-            this.droneMoves = droneMoves;
-
-            String todayDate = date;
-            RetrieveRestData restDataRetriever = new RetrieveRestData();
+        String todayDate = date;
+        RetrieveRestData restDataRetriever = new RetrieveRestData();
 //            Order[] allOrders = restDataRetriever.retrieveOrderDataByDate(todayDate);
 //            setValidOrdersQueue(todayDate);
 
-            OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
-            Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
+        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
+        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
 
-            Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
-            Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
-            String orderNo = firstOrder.getOrderNo();
-            // Check if there is a second order
-            if (!orders.isEmpty()) {
-                // Dequeue the second order
-                Order secondOrder = orders.poll();
-                Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(secondOrder, allRestaurants);
-                LngLat restaurantLocation = correspondingRestaurant.location();
-                Node3 restaurantDelivery = new Node3(restaurantLocation);
-                aStarSearch.pathFindingAlgorithm(startLocation, restaurantDelivery);
-                List<Node3> pathToRestaurant = aStarSearch.getPathBack();
-                Node3 lastNodeToRestaurant = pathToRestaurant.get(pathToRestaurant.size() - 1);
+        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
+//        Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
+//        String orderNo = firstOrder.getOrderNo();
+        // Check if there is a second order
+        while (!orders.isEmpty()) {
+            // Dequeue the second order
+            Order currentOrder = orders.poll();
+            String orderNo = currentOrder.getOrderNo();
+            Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(currentOrder, allRestaurants);
+            LngLat restaurantLocation = correspondingRestaurant.location();
+            Node3 restaurantDelivery = new Node3(restaurantLocation);
+            aStarSearch.pathFindingAlgorithm(startLocation, restaurantDelivery);
+            List<Node3> pathToRestaurant = aStarSearch.getPathBack();
+            Node3 lastNodeToRestaurant = pathToRestaurant.get(pathToRestaurant.size() - 1);
 
-                // Forward traversal
-                for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
-                    Node3 currentNode = pathToRestaurant.get(i);
-                    Node3 nextNode = pathToRestaurant.get(i + 1);
-                    double fromLongitude = currentNode.location.lng();
-                    double fromLatitude = currentNode.location.lat();
-                    double angle = nextNode.angle;
-                    double toLongitude = nextNode.location.lng();
-                    double toLatitude = nextNode.location.lat();
+            // Forward traversal
+            for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
+                Node3 currentNode = pathToRestaurant.get(i);
+                Node3 nextNode = pathToRestaurant.get(i + 1);
+                double fromLongitude = currentNode.location.lng();
+                double fromLatitude = currentNode.location.lat();
+                double angle = nextNode.angle;
+                double toLongitude = nextNode.location.lng();
+                double toLatitude = nextNode.location.lat();
 
-                    DroneMove move = new DroneMove(orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude);
-                    droneMoves.add(move);
-                }
+                DroneMove move = new DroneMove(orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude);
+                droneMoves.add(move);
+            }
 
-        // Hover node
-                LngLat hoverCurrentNodeLoc = lastNodeToRestaurant.location;
-                LngLat hoverNextNodeLoc = lastNodeToRestaurant.location;
-                double fromLongitude = hoverCurrentNodeLoc.lng();
-                double fromLatitude = hoverCurrentNodeLoc.lat();
-                double angle = 999;
-                double toLongitude = hoverNextNodeLoc.lng();
-                double toLatitude = hoverNextNodeLoc.lat();
+            // Hover node
+            LngLat hoverCurrentNodeLoc = lastNodeToRestaurant.location;
+            LngLat hoverNextNodeLoc = lastNodeToRestaurant.location;
+            double fromLongitude = hoverCurrentNodeLoc.lng();
+            double fromLatitude = hoverCurrentNodeLoc.lat();
+            double angle = 999;
+            double toLongitude = hoverNextNodeLoc.lng();
+            double toLatitude = hoverNextNodeLoc.lat();
 
-                DroneMove hoverMove = new DroneMove(orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude);
-                droneMoves.add(hoverMove);
+            DroneMove hoverMove = new DroneMove(orderNo, fromLongitude, fromLatitude, angle, toLongitude, toLatitude);
+            droneMoves.add(hoverMove);
 
-        // Reverse traversal
-                Collections.reverse(pathToRestaurant);
+            // Reverse traversal
+            Collections.reverse(pathToRestaurant);
 
-                for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
-                    Node3 currentNode = pathToRestaurant.get(i);
-                    Node3 nextNode = pathToRestaurant.get(i + 1);
-        //                LngLat reverseCurrentNodeLoc = currentNode.location;
-        //                LngLat reverseNextNodeLoc = nextNode.location;
-        //                double reverseAngle = currentNode.angle;
-                    double fromLongitude1 = currentNode.location.lng();
-                    double fromLatitude1 = currentNode.location.lat();
-                    double angle1 = currentNode.angle;
-                    double toLongitude1 = nextNode.location.lng();
-                    double toLatitude1 = nextNode.location.lat();
+            for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
+                Node3 currentNode = pathToRestaurant.get(i);
+                Node3 nextNode = pathToRestaurant.get(i + 1);
+                //                LngLat reverseCurrentNodeLoc = currentNode.location;
+                //                LngLat reverseNextNodeLoc = nextNode.location;
+                //                double reverseAngle = currentNode.angle;
+                double fromLongitude1 = currentNode.location.lng();
+                double fromLatitude1 = currentNode.location.lat();
+                double angle1 = currentNode.angle;
+                double toLongitude1 = nextNode.location.lng();
+                double toLatitude1 = nextNode.location.lat();
 
-                    DroneMove reverseMove = new DroneMove(orderNo, fromLongitude1, fromLatitude1, angle1, toLongitude1, toLatitude1);
-                    droneMoves.add(reverseMove);
-                }
+                DroneMove reverseMove = new DroneMove(orderNo, fromLongitude1, fromLatitude1, angle1, toLongitude1, toLatitude1);
+                droneMoves.add(reverseMove);
+            }
 
-                // Hover node
-                double hoverReverseNodeLocFromLong = startLocation.lng();
-                double hoverReverseNextNodeLocFromLat = startLocation.lat();
-                double hoverReverseAngle = 999;
-                double hoverReverseNodeLocToLong = startLocation.lng();
-                double hoverReverseNextNodeLocToLat = startLocation.lat();
+            // Hover node
+            double hoverReverseNodeLocFromLong = startLocation.lng();
+            double hoverReverseNextNodeLocFromLat = startLocation.lat();
+            double hoverReverseAngle = 999;
+            double hoverReverseNodeLocToLong = startLocation.lng();
+            double hoverReverseNextNodeLocToLat = startLocation.lat();
 
-                DroneMove hoverReverseMove = new DroneMove(orderNo, hoverReverseNodeLocFromLong, hoverReverseNextNodeLocFromLat, hoverReverseAngle, hoverReverseNodeLocToLong, hoverReverseNextNodeLocToLat);
-                droneMoves.add(hoverReverseMove);
+            DroneMove hoverReverseMove = new DroneMove(orderNo, hoverReverseNodeLocFromLong, hoverReverseNextNodeLocFromLat, hoverReverseAngle, hoverReverseNodeLocToLong, hoverReverseNextNodeLocToLat);
+            droneMoves.add(hoverReverseMove);
 
-                secondOrder.setOrderStatus(OrderStatus.DELIVERED);
+            currentOrder.setOrderStatus(OrderStatus.DELIVERED);
 
 
-                writeJsonToFile(droneMoves, todayDate);
+
 //                deliveriesJsonWriter(Arrays.asList(allOrders), todayDate);
 
 //                for (DroneMove move : droneMoves) {
@@ -118,14 +119,16 @@ public class DeliveryManager {
 
 
 
-                // Getter method for droneMoves
+            // Getter method for droneMoves
 
-
-
-            }
 
 
         }
+        writeJsonToFile(droneMoves, todayDate);
+        OutputFileWriter.outputGeoJson(droneMoves, todayDate);
+
+
+    }
 
 
     private void setValidOrdersQueue(String date) {
@@ -270,5 +273,5 @@ public class DeliveryManager {
     public List<DroneMove> getDroneMoves() {
         return droneMoves;
 
-        }
+    }
 }
