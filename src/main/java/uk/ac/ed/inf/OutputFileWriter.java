@@ -12,51 +12,105 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class OutputFileWriter {
-    public static void outputGeoJson(List<Node3> allMoves, String date) {
-        JsonArray features = new JsonArray();
-        for (Node3 move : allMoves) {
-            JsonObject geometry = new JsonObject();
-            geometry.addProperty("type", "Point");
-            JsonArray coordinates = new JsonArray();
-            coordinates.add(move.location.lng());
-            coordinates.add(move.location.lat());
-            geometry.add("coordinates", coordinates);
 
-            JsonObject properties = new JsonObject();
-            // Add any other properties you want to include
+//    public static void outputGeoJson(List<DroneMove> allMoves, String date) {
+//        JsonArray features = new JsonArray();
+//
+//        for (DroneMove move : allMoves) {
+//            JsonObject geometry = new JsonObject();
+//            geometry.addProperty("type", "Point");
+//
+//            JsonArray coordinates = new JsonArray();
+//            coordinates.add(move.getNextNodeFromLng());
+//            coordinates.add(move.getNextNodeFromLat());
+//            geometry.add("coordinates", coordinates);
+//
+//            JsonObject properties = new JsonObject();
+//            // Add any other properties you want to include
+//
+//            JsonObject feature = new JsonObject();
+//            feature.addProperty("type", "Feature");
+//            feature.add("geometry", geometry);
+//            feature.add("properties", properties);
+//
+//            features.add(feature);
+//        }
+//
+//        JsonObject pathTaken = new JsonObject();
+//        pathTaken.addProperty("type", "LineString");
+//
+//        JsonArray pathCoordinates = new JsonArray();
+//        for (DroneMove move : allMoves) {
+//            JsonArray coordinate = new JsonArray();
+//            coordinate.add(move.getNextNodeFromLng());
+//            coordinate.add(move.getNextNodeFromLat());
+//            pathCoordinates.add(coordinate);
+//        }
+//        pathTaken.add("coordinates", pathCoordinates);
+//
+//        JsonObject feature = new JsonObject();
+//        feature.addProperty("type", "Feature");
+//        feature.add("geometry", pathTaken);
+//
+//        features.add(feature);
+//
+//        JsonObject totalFeature = new JsonObject();
+//        totalFeature.addProperty("type", "FeatureCollection");
+//        totalFeature.add("features", features);
+//
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        String geoJsonString = gson.toJson(totalFeature);
+//
+//        System.out.println(geoJsonString);
+//    }
 
-            JsonObject feature = new JsonObject();
-            feature.addProperty("type", "Feature");
-            feature.add("geometry", geometry);
-            feature.add("properties", properties);
-
-            features.add(feature);
-        }
-
-        JsonObject pathTaken = new JsonObject();
-        pathTaken.addProperty("type", "LineString");
-        JsonArray pathCoordinates = new JsonArray();
-        for (Node3 move : allMoves) {
-            JsonArray coordinate = new JsonArray();
-            coordinate.add(move.location.lng());
-            coordinate.add(move.location.lat());
-            pathCoordinates.add(coordinate);
-        }
-        pathTaken.add("coordinates", pathCoordinates);
-
-        JsonObject feature = new JsonObject();
-        feature.addProperty("type", "Feature");
-        feature.add("geometry", pathTaken);
-
-        features.add(feature);
-
-        JsonObject totalFeature = new JsonObject();
-        totalFeature.addProperty("type", "FeatureCollection");
-        totalFeature.add("features", features);
-
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String geoJsonString = gson.toJson(totalFeature);
-
-        System.out.println(geoJsonString);
-    }
+    //make sure you have a properties element that is also an output otherwise it wont parse
+    //And just put the line coordinates, so "type": "LineString" (but ask someone for confirmation)
+//    public static void outputGeoJson(List<Node3> allMoves, String date) {
+//        JsonArray features = new JsonArray();
+//        for (Node3 move : allMoves) {
+//            JsonObject geometry = new JsonObject();
+//            geometry.addProperty("type", "Point");
+//            JsonArray coordinates = new JsonArray();
+//            coordinates.add(move.location.lng());
+//            coordinates.add(move.location.lat());
+//            geometry.add("coordinates", coordinates);
+//
+//            JsonObject properties = new JsonObject();
+//            // Add any other properties you want to include
+//
+//            JsonObject feature = new JsonObject();
+//            feature.addProperty("type", "Feature");
+//            feature.add("geometry", geometry);
+//            feature.add("properties", properties);
+//
+//            features.add(feature);
+//        }
+//
+//        JsonObject pathTaken = new JsonObject();
+//        pathTaken.addProperty("type", "LineString");
+//        JsonArray pathCoordinates = new JsonArray();
+//        for (Node3 move : allMoves) {
+//            JsonArray coordinate = new JsonArray();
+//            coordinate.add(move.location.lng());
+//            coordinate.add(move.location.lat());
+//            pathCoordinates.add(coordinate);
+//        }
+//        pathTaken.add("coordinates", pathCoordinates);
+//
+//        JsonObject feature = new JsonObject();
+//        feature.addProperty("type", "Feature");
+//        feature.add("geometry", pathTaken);
+//
+//        features.add(feature);
+//
+//        JsonObject totalFeature = new JsonObject();
+//        totalFeature.addProperty("type", "FeatureCollection");
+//        totalFeature.add("features", features);
+//
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        String geoJsonString = gson.toJson(totalFeature);
+//
+//        System.out.println(geoJsonString);
+//    }
 }

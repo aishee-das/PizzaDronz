@@ -77,7 +77,19 @@ public class Node3 {
 
         // Calculating and storing the euclidean distance from the current location to the destination the
         // drone attempts to get to/ get close to.
-        h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
+//        h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
+        if (destinationNode != null) {
+            h_scores = lngLatHandler.distanceTo(loc, destinationNode.location);
+        } else {
+            h_scores = 0; // Set distance to 0 for hover nodes
+        }
+    }
+
+    public static Node3 createHoverNode(LngLat loc, Node3 destinationNode, int angle) {
+        Node3 hoverNode = new Node3(loc, destinationNode);
+        hoverNode.angle = angle;
+        return hoverNode;
+
     }
 
 

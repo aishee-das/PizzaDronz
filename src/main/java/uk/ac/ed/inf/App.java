@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static uk.ac.ed.inf.FlightPath.findShortestPath;
-import static uk.ac.ed.inf.OutputFileWriter.outputGeoJson;
+//import static uk.ac.ed.inf.OutputFileWriter.outputGeoJson;
 
 public class App {
     /**
@@ -16,65 +16,126 @@ public class App {
      */
     public static void main(String[] args) {
 
+        String todayDate = "2023-11-19";
+
+        DeliveryManager deliveryManager = new DeliveryManager();
+        deliveryManager.runDeliveryProcess(todayDate);
 
 
 
-        LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
-        LngLat startLocation = APPLETON_TOWER;
-        AStarSearch aStarSearch = new AStarSearch();
-        Node3 goBack = new Node3(APPLETON_TOWER);
-        List<Node3> movesMade = new ArrayList<>();
 
-        String todayDate = "2023-11-14";
-        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
-        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
+//        LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
+//        LngLat startLocation = APPLETON_TOWER;
+//        AStarSearch aStarSearch = new AStarSearch();
+////        Node3 goBack = new Node3(APPLETON_TOWER);
+//        List<Node3> movesMade = new ArrayList<>();
 //
-        System.out.println("No of orders for " + todayDate + ": " + orders.size()); //should be 37
-
-        // Create an instance of RetrieveRestData
-        RetrieveRestData restDataRetriever = new RetrieveRestData();
-
-        // Retrieve restaurant data from the REST API
-        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
-
-        // Get the first order from the queue
-        Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
-
-
-        // Find the corresponding restaurant for the first order
-        Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(firstOrder, allRestaurants);
-        LngLat restaurantLocation = correspondingRestaurant.location();
-        System.out.println(restaurantLocation);
-        Node3 restaurantDelivery = new Node3(restaurantLocation);
-        Node3 pathToRestaurantEndNode = aStarSearch.pathFindingAlgorithm(startLocation, restaurantDelivery);
-        List<Node3> pathToRestaurant = aStarSearch.getPathBack();
-        List<Node3> pathToRestaurantFixed = pathToRestaurant.subList(1, pathToRestaurant.size());
-        List<Node3> pathFromRestaurant = new ArrayList<>(pathToRestaurant);
-        Collections.reverse(pathFromRestaurant);
-//        Node3 pathFromRestaurantEndNode = aStarSearch.pathFindingAlgorithm(pathToRestaurantEndNode.location, goBack);
-//        List<Node3> pathFromRestaurant = aStarSearch.getPathBack();
-        List<Node3> pathFromRestaurantFixed = pathFromRestaurant.subList(1, pathFromRestaurant.size());
-//        startLocation = pathFromRestaurantEndNode.location;
-
-        movesMade.addAll(pathToRestaurant);
-        //movesMade.addAll(pathFromRestaurant);
+//        String todayDate = "2023-11-18";
+//        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
+//        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
+////
+//        System.out.println("No of orders for " + todayDate + ": " + orders.size()); //should be 37
+//
+//        // Create an instance of RetrieveRestData
+//        RetrieveRestData restDataRetriever = new RetrieveRestData();
+//
+//        // Retrieve restaurant data from the REST API
+//        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
+//
+//        // Get the first order from the queue
+//        Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
 //
 //
+//        // Find the corresponding restaurant for the first order
+//        Restaurant correspondingRestaurant = OrdersToDeliver.findCorrespondingRestaurant(firstOrder, allRestaurants);
+//        LngLat restaurantLocation = correspondingRestaurant.location();
+//        System.out.println(restaurantLocation);
+//        Node3 restaurantDelivery = new Node3(restaurantLocation);
+//        aStarSearch.pathFindingAlgorithm(startLocation, restaurantDelivery);
+//        List<Node3> pathToRestaurant = aStarSearch.getPathBack();
+//        //List<Node3> pathToRestaurantFixed = pathToRestaurant.subList(1, pathToRestaurant.size());
+//        Node3 lastNodeToRestaurant = pathToRestaurant.get(pathToRestaurant.size() - 1);
 //
 //
+//        //pathToRestaurant.add(Node3.createHoverNode(restaurantLocation, 999));
+//        //List<Node3> pathToRestaurantFixed = pathToRestaurant.subList(1, pathToRestaurant.size());
 //
-        // Print the move from current node to next node
+//        //coorect
+//        //List<Node3> pathFromRestaurant = new ArrayList<>(pathToRestaurant);
+//
+//        //Collections.reverse(pathFromRestaurant);
+//        //pathToRestaurant.add(Node3.createHoverNode(lastNodeToRestaurant.location, lastNodeToRestaurant.destinationNode, 999));
+//        //pathFromRestaurant.add(Node3.createHoverNode(startLocation, null,999));
+//
+////        System.out.println("Path to Restaurant:");
+////        for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
+////            Node3 currentNode = pathToRestaurant.get(i);
+////            Node3 nextNode = pathToRestaurant.get(i + 1);
+////            System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+////        }
+////        System.out.println(); // Separate the output
+////
+////        System.out.println("Path from Restaurant:");
+////        for (int i = 0; i < pathFromRestaurant.size() - 1; i++) {
+////            Node3 currentNode = pathFromRestaurant.get(i);
+////            Node3 nextNode = pathFromRestaurant.get(i + 1);
+////
+////            // Print "Angle: 999" for the hover node
+////            if (currentNode.angle == 999) {
+////                System.out.println("Hover at " + currentNode.location + ", Angle: 999");
+////            } else {
+////                System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+////            }
+////        }
+//
+////        Node3 pathFromRestaurantEndNode = aStarSearch.pathFindingAlgorithm(pathToRestaurantEndNode.location, goBack);
+////        List<Node3> pathFromRestaurant = aStarSearch.getPathBack();
+//        //List<Node3> pathFromRestaurantFixed = pathFromRestaurant.subList(1, pathFromRestaurant.size());
+//        //when we do a for loop
+////        startLocation = pathFromRestaurantEndNode.location;
+//
+//        //movesMade.addAll(pathToRestaurant);
+////        movesMade.ADD HOVER NODE
+//        //movesMade.addAll(pathFromRestaurant);
+////
+////
+////
+////
+////
+//        // Print the move from current node to next node
 //        System.out.println("Moves from start to end:");
-//        for (int i = 0; i < movesMade.size() - 1; i++) {
-//            Node3 currentNode = movesMade.get(i);
-//            Node3 nextNode = movesMade.get(i + 1);
+//        for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
+//            Node3 currentNode = pathToRestaurant.get(i);
+//            Node3 nextNode = pathToRestaurant.get(i +1);
+//            LngLat currentNodeLoc = currentNode.location;
+//            // Print "Angle: 999" for the hover node
+////            if (nextNode.angle == 999) {
+////                System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: 999");
+////            } else {
 //            System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + nextNode.angle);
+////            }
 //        }
-
-       // List<Node> allMoves = // populate your list of Node objects
-       // String date = // provide the date as needed
-
-        outputGeoJson(movesMade, todayDate);
+//        System.out.println(lastNodeToRestaurant.location + " " + lastNodeToRestaurant.location + ", Angle: " + Direction.HOVER);
+//
+//        Collections.reverse(pathToRestaurant);
+//        System.out.println("Moves from start to end:");
+//        for (int i = 0; i < pathToRestaurant.size() - 1; i++) {
+//            Node3 currentNode = pathToRestaurant.get(i);
+//            Node3 nextNode = pathToRestaurant.get(i +1);
+//            // Print "Angle: 999" for the hover node
+////            if (nextNode.angle == 999) {
+////                System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: 999");
+////            } else {
+//            System.out.println("Move from " + currentNode.location + " to " + nextNode.location + ", Angle: " + currentNode.angle);
+////            }
+//        }
+//        //same thimg here for reverse
+//        List<DroneMove> droneMoves = deliveryManager.getDroneMoves();
+//       // String date = // provide the date as needed
+//
+//
+////        to output geoJson files
+//        outputGeoJson(droneMoves, todayDate);
 
 
 
@@ -189,9 +250,9 @@ public class App {
 //        RetrieveRestData restDataRetriever = new RetrieveRestData();
 //
 //        // Retrieve restaurant data from the REST API
-//        Restaurant[] allRestaurants = restDataRetriever.retrieveRestaurantData();
+//        Restaurant[] allRestaurants = restDaer from the queutaRetriever.retrieveRestaurantData();
 //
-//        // Get the first order from the queue
+//        // Get the first orde
 //        Order firstOrder = ordersToDeliver.getValidOrdersToDeliver().poll();
 //
 //        // Find the corresponding restaurant for the first order

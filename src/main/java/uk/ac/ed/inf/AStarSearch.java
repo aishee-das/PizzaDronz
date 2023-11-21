@@ -49,14 +49,14 @@ public class AStarSearch {
         Collections.reverse(path);
 
         // A new hover node is added when the drone reaches its final destination.
-        Node3 hover = new Node3(endNode.location);
-        //The hover node has the parent of the end node
-        hover.parent = endNode;
-//        //The angle taken in this hover node will be null
-        hover.angle = Direction.HOVER.angle;
-
-        //The hover node is then added to the path
-        path.add(hover);
+//        Node3 hover = new Node3(endNode.location);
+//        //The hover node has the parent of the end node
+//        hover.parent = endNode;
+////        //The angle taken in this hover node will be null
+//        hover.angle = Direction.HOVER.angle;
+//
+//        //The hover node is then added to the path
+//        path.add(hover);
 
         return path;
     }
