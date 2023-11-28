@@ -1,11 +1,15 @@
 package uk.ac.ed.inf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -16,13 +20,15 @@ import java.util.Date;
  * This class is responsible for retrieving data from REST server
  */
 public class RetrieveRestData {
-    private static final String BASE_URL_STRING = "https://ilp-rest.azurewebsites.net";
+    private final String BASE_URL_STRING;
+//    private String BASE_URL_STRING = "https://ilp-rest.azurewebsites.net";
     private ObjectMapper mapper;
 
-    public RetrieveRestData() {
+    public RetrieveRestData(String BASE_URL_STRING) {
         this.mapper = new ObjectMapper();
         // Register the JavaTimeModule to handle Java 8 date/time types
         this.mapper.registerModule(new JavaTimeModule());
+        this.BASE_URL_STRING = BASE_URL_STRING;
     }
 
     public <T> T retrieveData(String urlExtension, Class<T> valueType) {
@@ -66,6 +72,26 @@ public class RetrieveRestData {
     public NamedRegion retrieveCentralArea() {
         String centralAreaEndpoint = "/centralArea";
         return retrieveData(centralAreaEndpoint, NamedRegion.class);
+    }
+
+    /**
+     * Checks if the API is alive by sending a request to the "/isAlive" endpoint.
+     *
+     * @return "true" if the API is alive, "false" if not, "error" if there's an issue.
+     */
+    public String checkApiStatus() {
+        try {
+            URL apiUrl = new URL(BASE_URL_STRING + "/isAlive");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(apiUrl.openStream()));
+
+            Gson gson = new GsonBuilder().create();
+            boolean isAlive = gson.fromJson(reader, boolean.class);
+
+            return String.valueOf(isAlive);
+
+        } catch (IOException e) {
+            return "error";
+        }
     }
 }
 

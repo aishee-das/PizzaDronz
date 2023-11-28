@@ -7,54 +7,111 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import uk.ac.ed.inf.ilp.data.Order;
 
 public class OutputFileWriter {
-    public static void outputGeoJson(List<DroneMove> allMoves, String date) {
-        JsonArray coordinates = new JsonArray();
 
-        for (DroneMove move : allMoves) {
-            JsonArray coordinate = new JsonArray();
-            coordinate.add(move.getNextNodeFromLng());
-            coordinate.add(move.getNextNodeFromLat());
-            coordinates.add(coordinate);
-        }
+    private static JSONObject deliveriesHelper(Order order) {
+        JSONObject pathObject = new JSONObject();
 
-        JsonObject lineStringGeometry = new JsonObject();
-        lineStringGeometry.addProperty("type", "LineString");
-        lineStringGeometry.add("coordinates", coordinates);
+        pathObject.put("orderNo", order.getOrderNo());
+        pathObject.put("orderStatus", order.getOrderStatus().toString()); // Assuming OrderStatus is an enum
+        pathObject.put("orderValidationCode", order.getOrderValidationCode().toString()); // Assuming OrderValidationCode is an enum
+        pathObject.put("costInPence", order.getPriceTotalInPence());
 
-        JsonObject lineStringFeature = new JsonObject();
-        lineStringFeature.addProperty("type", "Feature");
-        lineStringFeature.add("geometry", lineStringGeometry);
+        return pathObject;
+    }
 
-        JsonObject featureCollection = new JsonObject();
-        featureCollection.addProperty("type", "FeatureCollection");
+    public static void deliveriesJsonWriter(List<Order> ordersList, String date) {
+        try {
+            // Create the resultfiles directory if it doesn't exist
+            String directoryPath = "resultfiles/";
 
-        JsonArray features = new JsonArray();
-        features.add(lineStringFeature);
+            JSONArray deliveries = new JSONArray();
 
-        featureCollection.add("features", features);
+            for (Order order : ordersList) {
+                JSONObject pathObject = deliveriesHelper(order);
+                deliveries.add(pathObject);
+            }
+            String fileName = directoryPath + "delivery-" + date + ".json";
+            try (FileWriter writer = new FileWriter(fileName)) {
+                writer.write(deliveries.toJSONString());
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String geoJsonString = gson.toJson(featureCollection);
-
-        // Specify the directory path
-        String directoryPath = "resultfiles/";
-
-        // Write string to file in the specified directory
-        String fileName = directoryPath + "path-" + date + ".json";
-        try (FileWriter writer = new FileWriter(fileName)) {
-            writer.write(geoJsonString);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("GeoJSON written to: " + fileName);
     }
+
+
+    //    }
+    //flightpath file - records every move of the drone
+    public static void writeJsonToFile(List<DroneMove> moves, String date) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // Convert DroneMove objects to JSON
+            String jsonString = objectMapper.writeValueAsString(moves);
+
+            // Specify the directory path
+            String directoryPath = "resultfiles/";
+
+            // Write string to file in the specified directory
+            String fileName = directoryPath + "flightpath-" + date + ".json";
+            try (FileWriter writer = new FileWriter(fileName)) {
+                writer.write(jsonString);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//MAKE THIS.GEOJSON NOT JSON!!
+//    public static void outputGeoJson(List<DroneMove> allMoves, String date) {
+//        JsonArray coordinates = new JsonArray();
+//
+//        for (DroneMove move : allMoves) {
+//            JsonArray coordinate = new JsonArray();
+//            coordinate.add(move.getNextNodeFromLng());
+//            coordinate.add(move.getNextNodeFromLat());
+//            coordinates.add(coordinate);
+//        }
+//
+//        JsonObject lineStringGeometry = new JsonObject();
+//        lineStringGeometry.addProperty("type", "LineString");
+//        lineStringGeometry.add("coordinates", coordinates);
+//
+//        JsonObject lineStringFeature = new JsonObject();
+//        lineStringFeature.addProperty("type", "Feature");
+//        lineStringFeature.add("geometry", lineStringGeometry);
+//        lineStringFeature.add("properties", JsonNull.INSTANCE);
+//
+//        JsonObject featureCollection = new JsonObject();
+//        featureCollection.addProperty("type", "FeatureCollection");
+//
+//        JsonArray features = new JsonArray();
+//        features.add(lineStringFeature);
+//
+//        featureCollection.add("features", features);
+//
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        String geoJsonString = gson.toJson(featureCollection);
+//
+//        // Specify the directory path
+//        String directoryPath = "resultfiles/";
+//
+//        // Write string to file in the specified directory
+//        String fileName = directoryPath + "drone-" + date + ".geojson";
+//        try (FileWriter writer = new FileWriter(fileName)) {
+//            writer.write(geoJsonString);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 //    public static void outputGeoJson(List<DroneMove> allMoves, String date) {
 //        JsonArray features = new JsonArray();

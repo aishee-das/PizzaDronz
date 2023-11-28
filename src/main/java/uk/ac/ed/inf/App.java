@@ -1,10 +1,15 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.ilp.constant.OrderStatus;
+import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
 import uk.ac.ed.inf.ilp.data.*;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 //import static uk.ac.ed.inf.OutputFileWriter.outputGeoJson;
@@ -14,19 +19,406 @@ public class App {
      * Passing in a valid order and testing that jar file works
      */
     public static void main(String[] args) {
-        long startTime = System.currentTimeMillis();
+        String date = args[0];
+        String BASEURL = args[1];
+        validateTerminalInputs(args);
+        RetrieveRestData retrieveRestData = new RetrieveRestData(BASEURL);
+        NamedRegion[] noFlyZones = retrieveRestData.retrieveNoFlyZones();
+        NamedRegion Central = retrieveRestData.retrieveCentralArea();
 
-        String todayDate = "2023-11-21";
+        // Check if the API is alive
+        String apiStatus = retrieveRestData.checkApiStatus();
 
-        DeliveryManager deliveryManager = new DeliveryManager();
-        deliveryManager.runDeliveryProcess(todayDate);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
+        if (apiStatus.equals("false")) {
+            System.err.println("Error: API is not currently alive");
+        } else if (apiStatus.equals("error")) {
+            System.err.println("Error: Unable to determine API status");
+        } else {
+            List<String> orderNumValid = new ArrayList<>();
+            List<Restaurant> restsToVisit = new ArrayList<>();
 
-        // Convert the elapsed time to seconds
-        double elapsedTimeInSeconds = elapsedTime / 1000.0;
+            Restaurant[] restrnts = retrieveRestData.retrieveRestaurantData();
+            Order[] orderList = retrieveRestData.retrieveOrderDataByDate(date);
+            List<Order> validatedList = new ArrayList<>();
 
-        System.out.println("Time taken: " + elapsedTimeInSeconds + " seconds");
+            if (orderList != null) {
+                if (orderList.length == 0) {
+                    System.err.println("No orders for date specified");
+                } else {
+                    directory.main();
+                    for (Order order : orderList) {
+                        Order validatedOrder =
+                                new OrderValidator().validateOrder(order, restrnts);
+                        if (validatedOrder != null) {
+                            if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
+                                orderNumValid.add(order.getOrderNo());
+                                restsToVisit.add(getRestrnt(restrnts, validatedOrder));
+                            }
+                            validatedList.add(validatedOrder);
+
+                            //create OrderJSON from input validatedOrder
+                        } else {
+                            System.err.println("no order validated");
+                        }
+                    }
+                    orderJSON.main(validatedList, date);
+                    pathGEO.main(orderNumValid, restsToVisit, BASEURL, date, noFlyZones, Central);
+                }
+            }
+        }
+    }
+        public static Restaurant getRestrnt(Restaurant[] restrnts,Order validOrder){
+        for (Restaurant definedRestaurant : restrnts) {
+            if (Arrays.asList(definedRestaurant.menu()).contains(validOrder.getPizzasInOrder()[0])) {
+                return definedRestaurant;
+            }
+        }
+        return null;
+      }
+    /**
+     * this helper method, validates all the inputs passed to the Controller.
+     * @param args it gets the date at which the drone delivers the order for (as a String),
+     *             the URL to the server's base address (As a String),
+     *             and a random seed (as a String).
+     */
+    private static void validateTerminalInputs(String[] args){
+        inputsNumberValidator(args);
+        isValidDateFormat(args[0]);
+        validateURL(args[1]);
+    }
+
+    private static String validateURL(String urlToCheck) {
+        try {
+            // Check if the URL is valid
+            new URL(urlToCheck);
+
+            return urlToCheck;
+        } catch (MalformedURLException e) {
+            System.err.println("Error: Invalid URL specified");
+            System.exit(1); // You might want to handle this differently based on your application's requirements
+            return null; // unreachable, but added to satisfy the compiler
+        }
+    }
+
+    /**
+     * This method checks if the number of arguments passed to the program are incorrect.
+     * In which case the programs is forced to stop.
+     * @param args The arguments passed to the program.
+     */
+    private static void inputsNumberValidator(String[] args){
+        if(args.length!=2){
+            //Prints an error message stating the error
+            System.err.println("Not all required inputs were passed");
+            //Exits the program
+            System.exit(1);
+        }
+    }
+
+    /**
+     * This method checks if the provided date string is in the correct format "yyyy-MM-dd".
+     *
+     * @param dateString The date string to be validated.
+     * @return True if the date is in the correct format, false otherwise.
+     */
+    private static boolean isValidDateFormat(String dateString) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            dateFormatter.parse(dateString);
+            return true; // Parsing successful, date is in the correct format
+        } catch (DateTimeParseException e) {
+            System.err.println("Error: Invalid date format. Please use the format 'yyyy-MM-dd'.");
+            return false;
+        }
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    LngLat restaurantLngLat = new LngLat(-3.1930174102783203,55.94550696616939);
+//    Order order = new Order("1234",
+//            LocalDate.now(),
+//            OrderStatus.UNDEFINED,
+//            OrderValidationCode.UNDEFINED,
+//            2100,
+//            new Pizza[]{new Pizza("Margarita", 1100), new Pizza("Hawaiian", 900)},
+//            null);
+//        order.setCreditCardInformation(new CreditCardInformation("1234567891123456",
+//                "12/26",
+//                "123"));
+//                DayOfWeek[] openingDays = {DayOfWeek.THURSDAY, DayOfWeek.TUESDAY};
+//                Pizza[] menu = {new Pizza("Margarita", 1100), new Pizza("Hawaiian", 900)};
+//                Restaurant[] restaurants = {new Restaurant("Sodeberg Pavillion", restaurantLngLat, openingDays, menu)};
+//
+//                String BASEURL = "https://ilp-rest.azurewebsites.net"; // Replace with your actual BASEURL
+//                String date = LocalDate.now().toString(); // Use the current date
+//                RetrieveRestData retrieveRestData = new RetrieveRestData();
+//                NamedRegion[] NoFlyZones = retrieveRestData.retrieveNoFlyZones();
+//                NamedRegion Central = retrieveRestData.retrieveCentralArea();
+//
+//                //NamedRegion[] NoFlyZones = retrieveRestData.retrieveNoFlyZones();
+////            NamedRegion[] NoFlyZones = new NamedRegion[]{new NamedRegion("George Square Area",
+////                    new LngLat[]{new LngLat(-3.190578818321228, 55.94702412577528),
+////                            new LngLat(-3.1899887323379517, 55.94184650540911),
+////                            new LngLat(-3.187097311019897, 55.94228811724263),
+////                            new LngLat(-3.187682032585144, 55.944477740393744),
+////                            new LngLat(-3.190578818321228, 55.94702412577528)})};
+//
+////            NamedRegion[] NoFlyZones = new NamedRegion[]{new NamedRegion("George Square Area",
+////                    new LngLat[]{new LngLat(-3.1922869215011597, 55.946135152517735),
+////                            new LngLat(-3.1892869215011597, 55.94613515251773),
+////                            new LngLat(-3.1892869215011597, 55.94545152517735),
+////                            new LngLat(-3.1922869215011597, 55.945535152517735),
+////                            new LngLat(-3.1922869215011597, 55.946135152517735)}),new NamedRegion("George Square Area",
+////                    new LngLat[]{new LngLat(-3.1922869215011597, 55.946135152517735),
+////                            new LngLat(-3.1892869215011597, 55.94613515251773),
+////                            new LngLat(-3.1892869215011597, 55.94545152517735),
+////                            new LngLat(-3.1922869215011597, 55.945535152517735),
+////                            new LngLat(-3.1922869215011597, 55.946135152517735)})};
+//                //NamedRegion Central = retrieveRestData.retrieveCentralArea();
+//                if (!(new RESThandler(BASEURL).isAlive())) {
+//                System.out.println("Website is not currently alive");
+//                } else {
+//                List<String> orderNumValid = new ArrayList<>();
+//        List<Restaurant> restsToVisit = new ArrayList<>();
+//
+//        orderJSON.main(new Order[]{order}, date);
+//
+//        Order validatedOrder = new OrderValidator().validateOrder(order, restaurants);
+//
+//        if (validatedOrder != null) {
+//        if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
+//        orderNumValid.add(order.getOrderNo());
+//        restsToVisit.add(getRestrnt(restaurants, validatedOrder));
+//
+//        // Process the order and restaurant data
+//        pathGEO.main(orderNumValid, restsToVisit, BASEURL, date, NoFlyZones, Central);
+//        } else {
+//        System.out.println("Order is not valid or already delivered");
+//        }
+//        } else {
+//        System.out.println("No order validated");
+//        }
+//        }
+//
+//        }
+
+//            String BASEURL = args[1];
+//            String date = args[0];
+//            RetrieveRestData retrieveRestData = new RetrieveRestData();
+//
+//            if (!(new RESThandler(BASEURL).isAlive())){
+//                System.out.println("Website is not currently alive");
+//            } else {
+//
+//
+//                List<String> orderNumValid = new ArrayList<>();
+//                List<Restaurant> restsToVisit = new ArrayList<>();
+//
+//                Restaurant[] restrnts = retrieveRestData.retrieveRestaurantData();
+//                Order[] orderList = retrieveRestData.retrieveOrderDataByDate(date);
+//                if (orderList != null) {
+//                    orderJSON.main(orderList, date);
+//                    for (Order order : orderList) {
+//                        Order validatedOrder =
+//                                new OrderValidator().validateOrder(order, restrnts);
+//                        if (validatedOrder != null) {
+//                            if (validatedOrder.getOrderStatus() == OrderStatus.VALID_BUT_NOT_DELIVERED) {
+//                                orderNumValid.add(order.getOrderNo());
+//                                restsToVisit.add(getRestrnt(restrnts, validatedOrder));
+//                            }
+//
+//                            //create OrderJSON from input validatedOrder
+//                        } else {
+//                            System.out.println("no order validated");
+//                        }
+//                    }
+//                    pathGEO.main(orderNumValid, restsToVisit, BASEURL, date);
+//                }
+//            }
+//        }
+//
+//        public static Restaurant getRestrnt(Restaurant[] restrnts,Order validOrder){
+//            for (Restaurant definedRestaurant : restrnts) {
+//                if (Arrays.asList(definedRestaurant.menu()).contains(validOrder.getPizzasInOrder()[0])) {
+//                    return definedRestaurant;
+//                }
+//            }
+//            return null; //this would never be reached
+//        }
+//
+//    }
+
+//        NamedRegion centralArea = new NamedRegion(SystemConstants.CENTRAL_REGION_NAME,
+//                new LngLat[]{new LngLat(-3.192473, 55.946233),
+//                        new LngLat(-3.192473, 55.942617),
+//                        new LngLat(-3.184319, 55.942617),
+//                        new LngLat(-3.184319, 55.946233) });
+
+        //LngLat restaurantLngLat = new LngLat(-3.1930174102783203,55.94550696616939); //-3.1940174102783203,55.94390696616939
+//        Order order = new Order("1234",
+//                LocalDate.now(),
+//                OrderStatus.UNDEFINED,
+//                OrderValidationCode.UNDEFINED,
+//                2100,
+//                new Pizza[]{new Pizza("Margarita", 1100), new Pizza("Hawaiian", 900)},
+//                null);
+//        order.setCreditCardInformation(new CreditCardInformation("1234567891123456",
+//                "12/26",
+//                "123"));
+        //CoordinatePoint restaurant = new CoordinatePoint(restaurantLngLat.lng(), restaurantLngLat.lat());
+//        DayOfWeek[] openingDays = {DayOfWeek.THURSDAY, DayOfWeek.MONDAY};
+//        Pizza[] menu = {new Pizza("Margarita", 1100), new Pizza("Hawaiian", 900)};
+//        Restaurant[] restaurants = new Restaurant[]{new Restaurant("Sodeberg Pavillion", restaurantLngLat, openingDays, menu)};
+
+//        long startTime = System.currentTimeMillis();
+//        NamedRegion[] noFlyZones = new NamedRegion[]{new NamedRegion("George Square Area",
+//                new LngLat[]{new LngLat(-3.191578818321228, 55.94402412577528),
+//                        new LngLat(-3.189987323379517, 55.94284650540911),
+//                        new LngLat(-3.187097311019897, 55.94328811724263),
+//                        new LngLat(-3.187682032585144, 55.944477740393744),
+//                        new LngLat(-3.191578818321228, 55.94402412577528)})};
+
+//        String todayDate = "2023-11-27";
+//
+//        new DeliveryManager1(todayDate);
+//        long endTime = System.currentTimeMillis();
+//        long elapsedTime = endTime - startTime;
+//
+//        // Convert the elapsed time to seconds
+//        double elapsedTimeInSeconds = elapsedTime / 1000.0;
+//
+//        System.out.println("Time taken: " + elapsedTimeInSeconds + " seconds");
+//        String url = "https://ilp-rest.azurewebsites.net/";
+//        LocalDate date = LocalDate.now().minusDays(2);
+//
+//        LngLat APPLETON_TOWER = new LngLat(-3.186874, 55.944494);
+//
+//        RestService restService = new RestService(url);
+//        OrderValidator orderValidator = new OrderValidator();
+//
+//        Restaurant[] openRestaurants = restService.getOpenRestaurants(date);
+//        Order[] orders = restService.getOrdersForDate(date);
+//        AStar router = new AStar(restService.getCentralArea(), noFlyZones);
+//
+//        HashMap<Restaurant, ArrayList<PathNode>> restaurantPaths = new HashMap<>();
+//        HashMap<String, ArrayList<PathNode>> paths = new HashMap<>();
+//
+//        System.out.println("Orders for " + date + ":");
+//
+//        int counter = 1;
+//        for (Order order : orders) {
+//            order = orderValidator.validateOrder(order, openRestaurants);
+//            if (order.getOrderStatus() == VALID_BUT_NOT_DELIVERED) {
+//                try {
+//                    Restaurant orderedRestaurant = getRestaurant(order, openRestaurants);
+//
+//                    if (restaurantPaths.containsKey(orderedRestaurant)) {
+//                        ArrayList<PathNode> orderPath = restaurantPaths.get(orderedRestaurant);
+//
+//                        paths.put(order.getOrderNo(), orderPath);
+//                        Collections.reverse(orderPath);
+//                        paths.put(order.getOrderNo(), orderPath);
+//
+//                    } else {
+//                        assert orderedRestaurant != null;
+//                        ArrayList<PathNode> path = router.getRoute(APPLETON_TOWER, orderedRestaurant.location());
+//
+//                        restaurantPaths.put(orderedRestaurant, path);
+//                        System.out.println("> Route for restaurant " + orderedRestaurant.name() + " completed");
+//
+//                        if (path != null) {
+//                            paths.put(order.getOrderNo(), path);
+//                            Collections.reverse(path);
+//                            paths.put(order.getOrderNo(), path);
+//                        }
+//
+//                    }
+//
+//                    order.setOrderStatus(OrderStatus.DELIVERED);
+//                    System.out.println("    > Order " + order.getOrderNo() + " route completed [" + (counter++) + "/" + (orders.length) + "]");
+//                    for (Map.Entry<String, ArrayList<PathNode>> entry : paths.entrySet()) {
+//                        String orderNo = entry.getKey();
+//                        ArrayList<PathNode> path = entry.getValue();
+//
+//                        System.out.println("Path for Order " + orderNo + ":");
+//
+//                        for (PathNode node : path) {
+//                            System.out.println("From: " + (node.prev() != null ? node.prev() : "Start") +
+//                                    " To: " + node.curr() +
+//                                    " Angle: " + node.angle() +
+//                                    " Step: " + node.step());
+//                        }
+//
+////                        // Break out of the loop after processing the first order
+////                        break;
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+////
+//        FileOutputter fileOutputter = new FileOutputter();
+//
+//        fileOutputter.writeDeliveries("/deliveries-" + date + ".json", orders);
+//        fileOutputter.writeFlightpathJson("/flightpath-" + date + ".json", paths);
+//        fileOutputter.writePathGeoJson("/drone-" + date + ".geojson", paths);
+
+    /**
+     * Get the restaurant for the order
+     *
+     * @param order:           The order whose restaurant we want to determine
+     * @param openRestaurants: The list of restaurants currently open
+     * @return: The restaurant ordered from
+     */
+//    private static Restaurant getRestaurant(Order order, Restaurant[] openRestaurants) {
+//        for (Restaurant restaurant : openRestaurants) {
+//            // If menu contains pizza - the restaurant is found
+//            if (Arrays.asList(restaurant.menu()).contains(order.getPizzasInOrder()[0])) {
+//                return restaurant;
+//            }
+//        }
+//        // Should not be reached
+//        return null;
+//    }
+//}
+
+//        long endTime = System.currentTimeMillis();
+//        long elapsedTime = endTime - startTime;
+//
+//        // Convert the elapsed time to seconds
+//        double elapsedTimeInSeconds = elapsedTime / 1000.0;
+//
+//        System.out.println("Time taken: " + elapsedTimeInSeconds + " seconds");
 //        String todayDate = "2023-11-21";
 //        OrdersToDeliver ordersToDeliver = new OrdersToDeliver(todayDate);
 //        Queue<Order> orders = ordersToDeliver.getValidOrdersToDeliver();
@@ -181,8 +573,8 @@ public class App {
 //            System.out.println("No path found.");
 //        }
 
-    }
-    }
+//    }
+
 //
 //    AStarSearch aStarSearch = new AStarSearch();
 //

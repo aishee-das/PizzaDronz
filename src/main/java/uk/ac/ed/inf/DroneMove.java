@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.ac.ed.inf.ilp.data.LngLat;
@@ -9,22 +10,22 @@ public class DroneMove {
     @JsonProperty("orderNo")
     String orderNo;
     @JsonProperty("fromLongitude")
-    private double fromLongitude;
+    private LngLat fromLongitude;
 
     @JsonProperty("fromLatitude")
-    private double fromLatitude;
+    private LngLat fromLatitude;
 
     @JsonProperty("angle")
     private double angle;
 
     @JsonProperty("toLongitude")
-    private double toLongitude;
+    private LngLat toLongitude;
 
     @JsonProperty("toLatitude")
-    private double toLatitude;
+    private LngLat toLatitude;
 
-    public DroneMove(String orderNo, double fromLongitude, double fromLatitude, double angle,
-                     double toLongitude, double toLatitude) {
+    public DroneMove(String orderNo, LngLat fromLongitude, LngLat fromLatitude, double angle,
+                     LngLat toLongitude, LngLat toLatitude) {
         this.orderNo = orderNo;
         this.fromLongitude = fromLongitude;
         this.fromLatitude = fromLatitude;
@@ -40,11 +41,12 @@ public class DroneMove {
 //        return fromLatitude;
 //    }
 //
-    public double getNextNodeFromLng() {
+    @JsonIgnore
+    public LngLat getNextNodeFromLng() {
         return toLongitude;
     }
-
-    public double getNextNodeFromLat() {
+    @JsonIgnore
+    public LngLat getNextNodeFromLat() {
         return toLatitude;
     }
 //
