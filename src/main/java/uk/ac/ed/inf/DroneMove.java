@@ -1,56 +1,38 @@
 package uk.ac.ed.inf;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import uk.ac.ed.inf.ilp.data.LngLat;
 
-public class DroneMove {
-
-    @JsonProperty("orderNo")
-    String orderNo;
-    @JsonProperty("fromLongitude")
-    private LngLat fromLongitude;
-
-    @JsonProperty("fromLatitude")
-    private LngLat fromLatitude;
-
-    @JsonProperty("angle")
+/**
+ * Helper class to store the start, end coordinates of a move, the angle of the move and the order number
+ */
+public final class DroneMove {
+    private final LngLat start;
+    private final LngLat end;
     private double angle;
-
-    @JsonProperty("toLongitude")
-    private LngLat toLongitude;
-
-    @JsonProperty("toLatitude")
-    private LngLat toLatitude;
-
-    public DroneMove(String orderNo, LngLat fromLongitude, LngLat fromLatitude, double angle,
-                     LngLat toLongitude, LngLat toLatitude) {
-        this.orderNo = orderNo;
-        this.fromLongitude = fromLongitude;
-        this.fromLatitude = fromLatitude;
+    private String orderNo;
+    public DroneMove(LngLat start, double angle, LngLat end, String orderNo) {
+        this.start = start;
         this.angle = angle;
-        this.toLongitude = toLongitude;
-        this.toLatitude = toLatitude;
+        this.end = end;
+        this.orderNo = orderNo;
     }
-//    public double getCurrentNodeFromLng() {
-//        return fromLongitude;
-//    }
-//
-//    public double getCurrentNodeFromLat() {
-//        return fromLatitude;
-//    }
-//
-    @JsonIgnore
-    public LngLat getNextNodeFromLng() {
-        return toLongitude;
+    public LngLat getStart() {
+        return start;
     }
-    @JsonIgnore
-    public LngLat getNextNodeFromLat() {
-        return toLatitude;
+    public double getAngle() {
+        return angle;
     }
-//
-//    public double getAngle() {
-//        return angle;
-//    }
+    public LngLat getEnd() {
+        return end;
+    }
+    public String getOrderNo() {
+        return orderNo;
+    }
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public void setAngle(double angle) {
+        this.angle = angle;
+    }
 }

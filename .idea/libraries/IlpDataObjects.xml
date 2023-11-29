@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="IlpDataObjects">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/Lib/IlpDataObjects.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/IlpDataObjects.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

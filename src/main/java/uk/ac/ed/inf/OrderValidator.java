@@ -199,6 +199,23 @@ public class OrderValidator implements OrderValidation {
         return totalPizzaCost;
     }
 
+//    /**
+//     * Helper method to find intersection between two lists
+//     * @param orderList the list of pizzas in the order
+//     * @param menu the list of pizzas in the restaurant
+//     * @return the number of pizzas in the order that are in the restaurant
+//     */
+//    public static int intersection(java.util.List<Pizza> orderList, java.util.List<Pizza> menu) {
+//        int counter = 0;
+//        for (Pizza pizza : orderList) {
+//            if (menu.contains(pizza)) {
+//                counter++;
+//            }
+//        }
+//        return counter;
+//    }
+
+
 }
 
 
